@@ -22,6 +22,7 @@ function startGame() {
       let gameboard = this.gameboard;
       if (gameboard[row][col] === "") {
         gameboard[row][col] = this[player].mark;
+        renderBoard.call(game);
       } else {
         return console.log(`This cell is already marked with ${gameboard[row][col]}`);
       }
@@ -110,13 +111,49 @@ function startGame() {
         console.log(`${this.win} won.`)
       }
     }
-  }     
+  }
 
-  return {
+  const game = {
     gameboard: getGameboard,
     player1: getPlayer("X"),
     player2: getPlayer("O"),
     mark: mark,
     win: undefined,
-  };
+  }
+
+  function renderBoard() {
+    Array.from(document.body.childNodes).forEach((child) => child.remove());
+    const gameboard = document.createElement("div");
+    gameboard.classList.add("gameboard");
+    for (let i = 0; i < 3; i++) {
+      const row = document.createElement("div");
+      row.classList.add("row");
+      for (let j = 0; j < 3; j++) {
+        const cell = document.createElement("div");
+        cell.classList.add("cell");
+        if (this.gameboard[i][j] === "O") {
+          const nought = document.createElement("img");
+          nought.classList.add("nought");
+          nought.setAttribute("src", "img/nought.svg");
+          nought.setAttribute("width", "64px");
+          nought.setAttribute("height", "64px");  
+          cell.appendChild(nought);
+        } else if (this.gameboard[i][j] === "X") {
+          const cross = document.createElement("img");
+          cross.classList.add("cross");
+          cross.setAttribute("src", "img/cross.svg");
+          cross.setAttribute("width", "64px");
+          cross.setAttribute("height", "64px");
+          cell.appendChild(cross);
+        }     
+        row.appendChild(cell);
+      }
+      gameboard.appendChild(row);
+      document.body.appendChild(gameboard);
+    }
+  }
+
+  renderBoard.call(game);
+
+  return game;
 }
