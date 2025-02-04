@@ -8,22 +8,28 @@ function startGame() {
     return gameboard;
   })();
 
-  function getPlayer(mark) {
+  function getPlayer(name, mark) {
     return {
-      name: mark,
+      name: name,
       mark: mark,
     };
   }
 
-  function mark(player, row, col) {
+
+  function mark(row, col) {
     if (!this.win) {
       row = --row;
       col = --col;
       let gameboard = this.gameboard;
       if (gameboard[row][col] === "") {
-        gameboard[row][col] = this[player].mark;
+        gameboard[row][col] = this.turn.mark;
+        if (this.turn === this.player1) {
+          this.turn = this.player2;
+        } else if (this.turn === this.player2) {
+          this.turn = this.player1;
+        }
         renderBoard.call(game);
-      } else {
+      } else {  
         return console.log(`This cell is already marked with ${gameboard[row][col]}`);
       }
 
@@ -40,6 +46,7 @@ function startGame() {
               } else if (this.player2.mark === mark) {
                 this.win = this.player2.name;
               }
+              document.querySelector(".turn").textContent = `${this.win} win!`;
               return console.log(`${this.win} win!`);
             }
           }
@@ -54,6 +61,7 @@ function startGame() {
               } else if (this.player2.mark === mark) {
                 this.win = this.player2.name;
               }
+              document.querySelector(".turn").textContent = `${this.win} win!`;
               return console.log(`${this.win} win!`);
             };
           }
@@ -72,6 +80,7 @@ function startGame() {
                 } else if (this.player2.mark === mark) {
                   this.win = this.player2.name;
                 }
+                document.querySelector(".turn").textContent = `${this.win} win!`;
                 return console.log(`${this.win} win!`);
               };
             }
@@ -88,6 +97,7 @@ function startGame() {
                 } else if (this.player2.mark === mark) {
                   this.win = this.player2.name;
                 }
+                document.querySelector(".turn").textContent = `${this.win} win!`;
                 return console.log(`${this.win} win!`); 
               };
             }
@@ -102,6 +112,7 @@ function startGame() {
         }
         this.win = "draw";
         console.log("It's a draw.");
+        document.querySelector(".turn").textContent = "It's a draw";
       })();
 
     } else {
@@ -115,14 +126,17 @@ function startGame() {
 
   const game = {
     gameboard: getGameboard,
-    player1: getPlayer("X"),
-    player2: getPlayer("O"),
+    player1: getPlayer(player1Name.value, player1Mark.value),
+    player2: getPlayer(player2Name.value, player2Mark.value),
     mark: mark,
     win: undefined,
   }
+  game.turn = game.player1;
 
   function renderBoard() {
-    Array.from(document.body.childNodes).forEach((child) => child.remove());
+    Array.from(document.body.childNodes).forEach((child) => {
+      if (child !== document.querySelector("form")) child.remove();
+    });
     const gameboard = document.createElement("div");
     gameboard.classList.add("gameboard");
     for (let i = 0; i < 3; i++) {
@@ -145,15 +159,48 @@ function startGame() {
           cross.setAttribute("width", "64px");
           cross.setAttribute("height", "64px");
           cell.appendChild(cross);
-        }     
+        } else if (this.gameboard[i][j] === "") {
+          cell.addEventListener("click", () => {
+            game.mark(i + 1, j + 1);
+          });
+        }  
         row.appendChild(cell);
       }
       gameboard.appendChild(row);
       document.body.appendChild(gameboard);
     }
+    const turn = document.createElement("p");
+    turn.classList.add("turn");
+    turn.textContent = `${game.turn.name}’s turn`
+    document.body.appendChild(turn);  
   }
 
   renderBoard.call(game);
 
   return game;
 }
+
+const player1Name = document.querySelector("#player1-name");
+const player2Name = document.querySelector("#player2-name");
+const player1Mark = document.querySelector("#player1-mark");
+const player2Mark = document.querySelector("#player2-mark");
+player1Mark.addEventListener("change", () => {
+  if (player1Mark.value === "X") {
+    player2Mark.value = "O";
+  } else if (player1Mark.value === "O") {
+    player2Mark.value = "X";
+  }
+});
+player2Mark.addEventListener("change", () => {
+  if (player2Mark.value === "X") {
+    player1Mark.value = "O";
+  } else if (player2Mark.value === "O") {
+    player1Mark.value = "X";
+  }
+});
+
+const start = document.querySelector(".start-btn");
+start.addEventListener("click", (e) => {
+  e.preventDefault();
+  startGame()
+});
